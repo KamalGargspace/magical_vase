@@ -1,16 +1,75 @@
-# React + Vite
+# 🌌 Elysian - The Magical Vase
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Elysian** is an interactive, cinematic 3D web experience built with React, Three.js, and React Three Fiber. It features a stunning translucent glass vase set against a moody, moonlit mountain lake. The experience combines physics-based rendering, post-processing effects, and scroll-driven animations to create a highly immersive and premium aesthetic.
 
-Currently, two official plugins are available:
+![Elysian Magical Vase Demo](public/favicon.svg) <!-- Replace with a nice screenshot link if you have one! -->
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
 
-## React Compiler
+- **Translucent Glass Physics**: A custom physically-based material (PBR) that simulates thick, dark purple glass with realistic light transmission, attenuation, and surface ridges.
+- **Interactive Petal System**: Hundreds of cherry blossom petals swirl around the vase using instanced rendering for high performance. 
+  - **Click to Scatter**: Clicking the screen triggers a physics burst, causing the petals to explode outward and upward chaotically based on mathematical phase functions.
+- **Scroll-Driven Animation**: As the user scrolls, the vase dynamically twists, scales, and straightens while the petals converge inside the vase opening. HTML UI elements fade in and out seamlessly.
+- **Cinematic Lighting & Post-Processing**:
+  - A 6-point cinematic light rig tailored specifically for glass translucency.
+  - Advanced post-processing stack including Bloom, Chromatic Aberration, and Vignetting to create a dreamy, glowing atmosphere.
+- **Atmospheric Environment**: Features a procedural 3D mountain terrain generated using Fractional Brownian Motion (FBM) noise, a starry sky dome, floating moonbeams, dust particles, and a hyper-realistic reflecting water floor.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Technology Stack
 
-## Expanding the ESLint configuration
+- **[React](https://reactjs.org/)** & **[Vite](https://vitejs.dev/)**: For fast, modern frontend development and state management.
+- **[Three.js](https://threejs.org/)**: The core 3D WebGL engine.
+- **[React Three Fiber (@react-three/fiber)](https://docs.pmnd.rs/react-three-fiber)**: A React renderer for Three.js.
+- **[React Three Drei (@react-three/drei)](https://github.com/pmndrs/drei)**: Useful helpers and abstractions for R3F (Environment, GLTF loaders, Reflector floors).
+- **[Framer Motion & framer-motion-3d](https://www.framer.com/motion/)**: For smooth UI transitions and spring-physics 3D animations.
+- **[Postprocessing](https://docs.pmnd.rs/react-postprocessing)**: Advanced image effects (Bloom, Vignette).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/KamalGargspace/magical_vase.git
+   cd magical-vase
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser to view the project.
+
+### Building for Production
+
+To create an optimized production build:
+```bash
+npm run build
+```
+This will output static files into the `dist` directory, which can be deployed to any static hosting service like Vercel, Netlify, or GitHub Pages.
+
+## 📂 Project Structure
+
+- `src/App.jsx`: The main entry point, handling HTML UI overlays, scrolling logic, and the React Three Fiber `<Canvas>`.
+- `src/scenes/MainScene.jsx`: Assembles the entire 3D world, camera, environment, and post-processing effects.
+- `src/components/Vase.jsx`: The 3D vase component, including the custom translucent glass shader and scroll-based rotation.
+- `src/components/PetalSystem.jsx`: The instanced mesh system for the cherry blossom petals, containing the math for their swirling and click-burst physics.
+- `src/components/Background3D.jsx`: The procedural night sky, stars, mountains, dust, and cherry blossom tree.
+- `src/components/Lights.jsx`: The cinematic lighting rig.
+
+## 🎨 Design & Aesthetic
+
+The visual design is aimed at a "dark luxury" and serene aesthetic. The deep purple tones (`#2a0845`), soft glowing highlights, and floating petals evoke a sense of magic and craftsmanship.
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
