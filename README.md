@@ -2,6 +2,8 @@
 
 **Elysian** is an interactive, cinematic 3D web experience built with React, Three.js, and React Three Fiber. It features a stunning translucent glass vase set against a moody, moonlit mountain lake. The experience combines physics-based rendering, post-processing effects, and scroll-driven animations to create a highly immersive and premium aesthetic.
 
+🌟 **[Experience the Live Demo Here](https://magical-vase.vercel.app/)** 🌟
+
 ![Elysian Magical Vase Demo](public/favicon.svg) <!-- Replace with a nice screenshot link if you have one! -->
 
 ## ✨ Features
