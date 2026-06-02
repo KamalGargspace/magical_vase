@@ -4,7 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MainScene from './scenes/MainScene';
 import useScrollProgress from './hooks/useScrollProgress';
 import useAudio from './hooks/useAudio';
+import { logger } from './utils/logger';
 import './App.css';
+
+const log = logger.create('App');
 
 const MENU_ITEMS = [
   "01. HOME",
@@ -29,16 +32,45 @@ export default function App() {
 
   // Feed scroll progress into the audio engine for pitch shifting
   useEffect(() => {
-    updateScroll(progress);
+    try {
+      updateScroll(progress);
+    } catch (err) {
+      log.warn('Failed to update audio scroll:', err);
+    }
   }, [progress, updateScroll]);
 
   // Handle sound toggle
   const handleSoundToggle = () => {
-    if (muted) {
-      startAmbient(); // First click starts the ambient drone
+    try {
+      if (muted) {
+        startAmbient(); // First click starts the ambient drone
+      }
+      const nowMuted = toggleMute();
+      setMuted(nowMuted);
+      log.info(`Sound toggled: ${nowMuted ? 'muted' : 'unmuted'}`);
+    } catch (err) {
+      log.error('Sound toggle failed:', err);
     }
-    const nowMuted = toggleMute();
-    setMuted(nowMuted);
+  };
+
+  // Handle page navigation
+  const handlePageChange = (pageIndex) => {
+    try {
+      setActivePage(pageIndex);
+      log.info(`Page changed to: ${pageIndex}`);
+    } catch (err) {
+      log.error('Page change failed:', err);
+    }
+  };
+
+  // Handle canvas click burst
+  const handleCanvasBurst = () => {
+    try {
+      window.dispatchEvent(new Event('burst'));
+      log.debug('Canvas burst event dispatched');
+    } catch (err) {
+      log.warn('Failed to dispatch burst event:', err);
+    }
   };
 
   // Fade the hero section out smoothly from 0→0.3
@@ -53,13 +85,16 @@ export default function App() {
 
   return (
     <>
+      {/* ── Film Grain Overlay (premium texture) ── */}
+      <div className="film-grain" />
+
       {/* ── 3D Canvas (fixed background) ── */}
       <div className="canvas-container">
         <Canvas
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           camera={{ position: [0, 2.5, 6.5], fov: 45, near: 0.1, far: 200 }}
-          onPointerDown={() => window.dispatchEvent(new Event('burst'))}
+          onPointerDown={handleCanvasBurst}
         >
           <Suspense fallback={null}>
             <MainScene progress={progress} />
@@ -73,7 +108,7 @@ export default function App() {
         {/* Top Navbar */}
         <div className="top-nav">
           <div className="brand">ELYSIAN</div>
-          <div className="grid-icon">
+          <div className="grid-icon" id="nav-grid-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="5" cy="5" r="2" /><circle cx="12" cy="5" r="2" /><circle cx="19" cy="5" r="2" />
               <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
@@ -87,8 +122,9 @@ export default function App() {
           {MENU_ITEMS.map((item, index) => (
             <div 
               key={item}
+              id={`menu-item-${index + 1}`}
               className={`menu-item ${activePage === index + 1 ? 'active' : ''}`}
-              onClick={() => setActivePage(index + 1)}
+              onClick={() => handlePageChange(index + 1)}
             >
               {item}
             </div>
@@ -98,11 +134,20 @@ export default function App() {
         {/* Right Counter */}
         <div className="right-counter">0{activePage} / 05</div>
 
+        {/* Sparkle / Diamond Icon — bottom right (matches reference) */}
+        <div className="sparkle-icon" id="sparkle-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" 
+                  fill="none" stroke="currentColor" strokeWidth="1" />
+          </svg>
+        </div>
+
         {/* Bottom HUD */}
         <div className="bottom-area">
           <div className="bottom-left-icons">
             {/* Sound toggle button — functional */}
             <div
+              id="sound-toggle-btn"
               className={`sound-toggle ${muted ? '' : 'active'}`}
               onClick={handleSoundToggle}
               title={muted ? 'Enable sound' : 'Mute sound'}
@@ -122,7 +167,7 @@ export default function App() {
               )}
             </div>
             <span className="divider" />
-            <div className="bag-container">
+            <div className="bag-container" id="bag-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -141,6 +186,9 @@ export default function App() {
           </motion.div>
         </div>
 
+        {/* Golden Glow Bar — bottom of viewport (reference image match) */}
+        <div className="golden-glow-bar" />
+
         <AnimatePresence mode="wait">
           {activePage === 1 ? (
             <motion.div
@@ -158,7 +206,7 @@ export default function App() {
                 <div className="hero-content">
                   <div className="subtitle">REFINED BEAUTY, ELEVATED.</div>
                   <h1 className="title">LUMIÈRE</h1>
-                  <div className="cta">
+                  <div className="cta" id="cta-discover">
                     DISCOVER THE COLLECTION
                     <span className="arrow">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -195,7 +243,7 @@ export default function App() {
                 <div className="subtitle">EXPLORE THE UNIVERSE</div>
                 <h1 className="title">{PAGE_CONTENT[activePage]?.title}</h1>
                 <p>{PAGE_CONTENT[activePage]?.desc}</p>
-                <div className="cta" onClick={() => setActivePage(1)}>
+                <div className="cta" id="cta-return" onClick={() => handlePageChange(1)}>
                   RETURN TO HOME
                 </div>
               </div>

@@ -3,70 +3,91 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { motion } from "framer-motion-3d";
+import { logger } from "../utils/logger";
+
+const log = logger.create('Vase');
 
 const vaseModelUrl = "/vase.glb";
 
 // ─── Translucent Purple Glass Material ──────────────────────────────────────
 function useGlassMaterial() {
   return useMemo(() => {
-    const mat = new THREE.MeshPhysicalMaterial({
-      // Core glass physics
-      transmission: 1.0,
-      transparent: true,
-      opacity: 1.0,
-      thickness: 1.5,
-      ior: 1.45,
+    try {
+      log.time('useGlassMaterial');
 
-      // Purple attenuation — light passing through picks up this color
-      attenuationDistance: 0.8,
-      attenuationColor: new THREE.Color("#c084fc"), // Bright lilac purple
+      const mat = new THREE.MeshPhysicalMaterial({
+        // Core glass physics
+        transmission: 1.0,
+        transparent: true,
+        opacity: 1.0,
+        thickness: 1.5,
+        ior: 1.45,
 
-      // Surface appearance
-      roughness: 0.05,
-      metalness: 0.0,
-      color: new THREE.Color("#e8d5f5"),  // Very light lavender tint
+        // Purple attenuation — light passing through picks up this color
+        attenuationDistance: 0.8,
+        attenuationColor: new THREE.Color("#c084fc"), // Bright lilac purple
 
-      // Reflections
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-      envMapIntensity: 2.5,
-      reflectivity: 0.9,
+        // Surface appearance
+        roughness: 0.05,
+        metalness: 0.0,
+        color: new THREE.Color("#e8d5f5"),  // Very light lavender tint
 
-      // Specular highlights
-      specularIntensity: 1.0,
-      specularColor: new THREE.Color("#f5e6ff"),
+        // Reflections
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        envMapIntensity: 2.5,
+        reflectivity: 0.9,
 
-      side: THREE.DoubleSide,
-    });
+        // Specular highlights
+        specularIntensity: 1.0,
+        specularColor: new THREE.Color("#f5e6ff"),
 
-    // Fluted ridge vertex shader
-    mat.onBeforeCompile = (shader) => {
-      shader.uniforms.uFlutes = { value: 14.0 };
-      shader.uniforms.uAmp    = { value: 0.018 };
+        side: THREE.DoubleSide,
+      });
 
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <common>",
-        `#include <common>
-        uniform float uFlutes;
-        uniform float uAmp;`
-      );
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <begin_vertex>",
-        `#include <begin_vertex>
-        float theta = atan(position.x, position.z);
-        float ridge = sin(theta * uFlutes) * uAmp;
-        vec2  radial = normalize(vec2(position.x, position.z));
-        float r      = length(vec2(position.x, position.z));
-        if (r > 0.001) {
-          transformed.x += radial.x * ridge;
-          transformed.z += radial.y * ridge;
-        }`
-      );
-      mat.userData.shader = shader;
-    };
+      // Fluted ridge vertex shader
+      mat.onBeforeCompile = (shader) => {
+        try {
+          shader.uniforms.uFlutes = { value: 14.0 };
+          shader.uniforms.uAmp    = { value: 0.018 };
 
-    mat.needsUpdate = true;
-    return mat;
+          shader.vertexShader = shader.vertexShader.replace(
+            "#include <common>",
+            `#include <common>
+            uniform float uFlutes;
+            uniform float uAmp;`
+          );
+          shader.vertexShader = shader.vertexShader.replace(
+            "#include <begin_vertex>",
+            `#include <begin_vertex>
+            float theta = atan(position.x, position.z);
+            float ridge = sin(theta * uFlutes) * uAmp;
+            vec2  radial = normalize(vec2(position.x, position.z));
+            float r      = length(vec2(position.x, position.z));
+            if (r > 0.001) {
+              transformed.x += radial.x * ridge;
+              transformed.z += radial.y * ridge;
+            }`
+          );
+          mat.userData.shader = shader;
+          log.debug('Vase fluted ridge shader compiled');
+        } catch (err) {
+          log.error('Vase shader compilation error:', err);
+        }
+      };
+
+      mat.needsUpdate = true;
+      log.timeEnd('useGlassMaterial');
+      return mat;
+    } catch (err) {
+      log.error('Failed to create glass material, using fallback:', err);
+      return new THREE.MeshStandardMaterial({
+        color: "#c084fc",
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      });
+    }
   }, []);
 }
 
@@ -88,16 +109,30 @@ function RockIsland() {
 export default function Vase({ progress = 0 }) {
   const groupRef = useRef();
   const material = useGlassMaterial();
-  const { scene } = useGLTF(vaseModelUrl);
+
+  let scene;
+  try {
+    const gltf = useGLTF(vaseModelUrl);
+    scene = gltf.scene;
+    log.debug('Vase GLB loaded');
+  } catch (err) {
+    log.error('Failed to load vase GLB:', err);
+    return null;
+  }
 
   useMemo(() => {
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material = material;
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
+    try {
+      scene.traverse((child) => {
+        if (child.isMesh) {
+          child.material = material;
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      log.info('Vase materials applied to mesh');
+    } catch (err) {
+      log.error('Failed to traverse/apply vase materials:', err);
+    }
   }, [scene, material]);
 
   useFrame((state) => {
@@ -130,4 +165,9 @@ export default function Vase({ progress = 0 }) {
   );
 }
 
-useGLTF.preload(vaseModelUrl);
+try {
+  useGLTF.preload(vaseModelUrl);
+  log.info('Preloading vase GLB');
+} catch (err) {
+  log.warn('Failed to preload vase asset:', err);
+}
