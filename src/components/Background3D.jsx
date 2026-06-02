@@ -1,7 +1,7 @@
 import { useRef, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, Center } from '@react-three/drei';
 import { logger } from '../utils/logger';
 import treeUrl from '../assets/tree2.glb?url';
 import { createPetalGeometry } from './Petal'; // Reuse our beautiful petal geometry
@@ -306,12 +306,10 @@ function CherryTree() {
       const c = scene.clone(true);
       c.traverse((child) => {
         if (child.isMesh && child.material) {
-          // Since tree2 is branches, let's give it a slightly mystical dark silhouette look
-          // that catches the light beautifully, instead of making it pitch black.
           const mat = child.material.clone();
-          mat.color.set('#2a1b38'); // Deep purple/brown
-          mat.roughness = 0.5;
-          mat.metalness = 0.3;
+          mat.color.set('#6a4b78'); // Lighter mystical purple to ensure it is visible
+          mat.roughness = 0.4;
+          mat.metalness = 0.2;
           child.material = mat;
           child.castShadow = true;
           child.receiveShadow = true;
@@ -321,11 +319,13 @@ function CherryTree() {
     }, [scene]);
 
     return (
-      <group position={[8, -6, 1]} scale={4.5} rotation={[0, -0.8, 0]}>
-        <primitive object={cloned} />
+      <group position={[25, -1, -8]} scale={1.5} rotation={[0.1, -0.8, 0]}>
+        <Center>
+          <primitive object={cloned} />
+        </Center>
         {/* Soft magical lighting specifically for the branches to make them look beautiful */}
-        <pointLight position={[-3, 6, 2]} color="#dfba6b" intensity={2.0} distance={15} decay={2} />
-        <pointLight position={[2, 2, 5]} color="#c084fc" intensity={3.0} distance={20} decay={2} />
+        <pointLight position={[-1, 3, 2]} color="#dfba6b" intensity={2.0} distance={15} decay={2} />
+        <pointLight position={[1, 1, 3]} color="#c084fc" intensity={3.0} distance={20} decay={2} />
       </group>
     );
   } catch (err) {

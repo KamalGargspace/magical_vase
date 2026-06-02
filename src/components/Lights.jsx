@@ -21,8 +21,8 @@ export default function Lights() {
 
   return (
     <group>
-      {/* Very subtle ambient — just enough to reveal mountain silhouettes */}
-      <ambientLight color="#0d0820" intensity={1.0} />
+      {/* Increased ambient light to make the terrain and background visible */}
+      <ambientLight color="#3d355c" intensity={2.5} />
 
       {/* Key light: warm white from top-left to illuminate glass interior */}
       <directionalLight
