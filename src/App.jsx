@@ -1,5 +1,6 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { Loader } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import MainScene from './scenes/MainScene';
 import useScrollProgress from './hooks/useScrollProgress';
@@ -251,6 +252,12 @@ export default function App() {
           )}
         </AnimatePresence>
       </div>
+      <Loader 
+        containerStyles={{ background: '#050505' }}
+        innerStyles={{ background: '#222', width: '300px', height: '4px', borderRadius: '4px' }}
+        barStyles={{ background: '#c084fc', height: '4px', borderRadius: '4px' }}
+        dataStyles={{ color: '#c084fc', fontFamily: 'Inter, sans-serif', fontSize: '12px', letterSpacing: '0.1em' }}
+      />
     </>
   );
 }
