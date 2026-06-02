@@ -299,39 +299,34 @@ function MoonBeams() {
 
 // ─── Cherry Blossom Tree ────────────────────────────────────────────────────
 function CherryTree() {
-  try {
-    const { scene } = useGLTF(treeUrl);
+  const { scene } = useGLTF(treeUrl);
 
-    const cloned = useMemo(() => {
-      const c = scene.clone(true);
-      c.traverse((child) => {
-        if (child.isMesh && child.material) {
-          const mat = child.material.clone();
-          mat.color.set('#6a4b78'); // Lighter mystical purple to ensure it is visible
-          mat.roughness = 0.4;
-          mat.metalness = 0.2;
-          child.material = mat;
-          child.castShadow = true;
-          child.receiveShadow = true;
-        }
-      });
-      return c;
-    }, [scene]);
+  const cloned = useMemo(() => {
+    const c = scene.clone(true);
+    c.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mat = child.material.clone();
+        mat.color.set('#6a4b78'); // Lighter mystical purple to ensure it is visible
+        mat.roughness = 0.4;
+        mat.metalness = 0.2;
+        child.material = mat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return c;
+  }, [scene]);
 
-    return (
-      <group position={[25, -1, -8]} scale={1.5} rotation={[0.1, -0.8, 0]}>
-        <Center>
-          <primitive object={cloned} />
-        </Center>
-        {/* Soft magical lighting specifically for the branches to make them look beautiful */}
-        <pointLight position={[-1, 3, 2]} color="#dfba6b" intensity={2.0} distance={15} decay={2} />
-        <pointLight position={[1, 1, 3]} color="#c084fc" intensity={3.0} distance={20} decay={2} />
-      </group>
-    );
-  } catch (err) {
-    log.error('Failed to load cherry tree GLB:', err);
-    return null;
-  }
+  return (
+    <group position={[25, -1, -8]} scale={1.5} rotation={[0.1, -0.8, 0]}>
+      <Center>
+        <primitive object={cloned} />
+      </Center>
+      {/* Soft magical lighting specifically for the branches to make them look beautiful */}
+      <pointLight position={[-1, 3, 2]} color="#dfba6b" intensity={2.0} distance={15} decay={2} />
+      <pointLight position={[1, 1, 3]} color="#c084fc" intensity={3.0} distance={20} decay={2} />
+    </group>
+  );
 }
 
 try {

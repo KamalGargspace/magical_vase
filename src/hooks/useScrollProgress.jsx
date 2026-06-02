@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { logger } from "../utils/logger";
 
 const log = logger.create('ScrollProgress');
@@ -24,14 +24,14 @@ export default function useScrollProgress() {
         const totalScrollable = docHeight - winHeight;
 
         if (totalScrollable <= 0) {
-          setProgress(0);
+          startTransition(() => setProgress(0));
           rAFId = null;
           return;
         }
 
         // Calculate progress and clamp between 0.0 and 1.0
         const currentProgress = Math.min(Math.max(window.scrollY / totalScrollable, 0), 1);
-        setProgress(currentProgress);
+        startTransition(() => setProgress(currentProgress));
         rAFId = null;
       } catch (err) {
         log.error('Failed to calculate scroll progress:', err);

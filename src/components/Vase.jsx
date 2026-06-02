@@ -110,15 +110,9 @@ export default function Vase({ progress = 0 }) {
   const groupRef = useRef();
   const material = useGlassMaterial();
 
-  let scene;
-  try {
-    const gltf = useGLTF(vaseModelUrl);
-    scene = gltf.scene;
-    log.debug('Vase GLB loaded');
-  } catch (err) {
-    log.error('Failed to load vase GLB:', err);
-    return null;
-  }
+  const gltf = useGLTF(vaseModelUrl);
+  const scene = gltf.scene;
+  log.debug('Vase GLB loaded');
 
   useMemo(() => {
     try {
